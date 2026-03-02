@@ -16,9 +16,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileToggle = document.querySelector('.mobile-toggle');
   const nav = document.querySelector('.nav');
   if (mobileToggle && nav) {
+    // Add phone and CTA to nav for mobile
+    if (!nav.querySelector('.mobile-nav-phone')) {
+      const phoneLink = document.createElement('a');
+      phoneLink.href = 'tel:0389054753';
+      phoneLink.className = 'mobile-nav-phone';
+      phoneLink.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> 03 8905 4753';
+      nav.appendChild(phoneLink);
+    }
+    if (!nav.querySelector('.mobile-nav-cta')) {
+      // Determine if we're on index or inside pages/
+      const isSubpage = window.location.pathname.includes('/pages/');
+      const contactHref = isSubpage ? 'contact.html' : 'pages/contact.html';
+      const ctaLink = document.createElement('a');
+      ctaLink.href = contactHref;
+      ctaLink.className = 'btn btn--primary btn--lg mobile-nav-cta';
+      ctaLink.innerHTML = 'Get a Free Quote <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      nav.appendChild(ctaLink);
+    }
+
     mobileToggle.addEventListener('click', () => {
-      nav.classList.toggle('nav--open');
+      const isOpen = nav.classList.toggle('nav--open');
       mobileToggle.classList.toggle('active');
+      document.body.classList.toggle('menu-open', isOpen);
+    });
+
+    // Toggle dropdown on mobile
+    const dropdown = nav.querySelector('.nav__dropdown');
+    if (dropdown) {
+      const dropdownLink = dropdown.querySelector('.nav__link');
+      dropdownLink.addEventListener('click', (e) => {
+        if (nav.classList.contains('nav--open')) {
+          e.preventDefault();
+          dropdown.classList.toggle('open');
+        }
+      });
+    }
+
+    // Close mobile menu when clicking a nav link (not dropdown parent)
+    nav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        // Don't close if it's the dropdown parent toggle
+        if (link.closest('.nav__dropdown') && link === link.closest('.nav__dropdown').querySelector('.nav__link')) return;
+        if (nav.classList.contains('nav--open')) {
+          nav.classList.remove('nav--open');
+          mobileToggle.classList.remove('active');
+          document.body.classList.remove('menu-open');
+          if (dropdown) dropdown.classList.remove('open');
+        }
+      });
     });
   }
 
@@ -121,6 +167,5 @@ style.textContent = `
   .animate-on-scroll:nth-child(2) { transition-delay: 0.1s; }
   .animate-on-scroll:nth-child(3) { transition-delay: 0.2s; }
   .animate-on-scroll:nth-child(4) { transition-delay: 0.3s; }
-  .nav--open { display: flex !important; position: fixed; top: 80px; left: 0; right: 0; bottom: 0; background: white; flex-direction: column; padding: 24px; gap: 8px; z-index: 999; }
 `;
 document.head.appendChild(style);
